@@ -1,30 +1,55 @@
 
-import express from 'express';
-import { getAvailableDates, stringifyDates } from './utils.js';
-const app = express();
 
-let booked = [
-  {
-    type: 'blocked',
-    date: new Date(2020, 11, 20, 10, 30, 0),
-    duration: 2
-  },
-  {
-    type: 'blocked',
-    date: new Date(2020, 11, 21, 13, 30, 0),
-    duration: 3
-  }
-]
+const dates = require('./routers/dates');
 
-let businessHours = [10, 11, 13, 14, 15, 16, 17];
-let today = new Date();
-let cap = new Date(new Date().setDate(new Date().getDate() + 30));
+var express = require('express');
+var axios = require('axios');
+var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
+var { booked } = require('./data');
 
+// var cors = require('cors');
+// app.use(cors());
 
-app.get("/getDates", (req, res, next) => {
-  res.json(stringifyDates(getAvailableDates(booked, businessHours, today, cap)));
+app.use(dates);
+
+io.on("connection", socket => {
+  console.log("New client connected");
+
+  let interval = setInterval(() => {
+    getApiAndEmit(socket);
+  }, 1000);
+
+  socket.on("book-date", (data) => {
+    booked.push({
+      type: 'blocked',
+      date: new Date(data),
+      duration: 1
+    });
+    getApiAndEmit(socket);
+  })
+
+  socket.on("disconnect", () => {
+    clearInterval(interval);
+    console.log("Client disconnected");
+  });
 });
 
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
+
+
+const getApiAndEmit = async socket => {
+  try {
+    const res = await axios.get(
+      "http://192.168.86.246:8080/getDates"
+    );
+    socket.emit("view-dates", res.data);
+
+  } catch (error) {
+    console.error(`Error: ${error.code}`);
+  }
+};
+
+server.listen(8080, () => {
+  console.log("Server running on port 8080");
 });

@@ -12,10 +12,6 @@ const getDatesBetweenDates = (startDate, endDate, open) => {
       theDate.setHours(hour);
       theDate.setMinutes(0);
       dates.push(new Date(theDate));
-
-      theDate.setHours(hour);
-      theDate.setMinutes(30);
-      dates.push(new Date(theDate));
     }
     theDate.setDate(theDate.getDate() + 1)
   }
@@ -32,13 +28,7 @@ const getAvailableToday = (startDate, openHours) => {
     return date;
   })
 
-  let half = whole.map((d) => {
-    const date = new Date(d);
-    date.setMinutes(30);
-    return date;
-  });
-
-  return [...whole, ...half].filter((date) => date > startDate).sort();
+  return whole.filter((date) => date > startDate).sort();
 
 }
 
@@ -47,16 +37,9 @@ const getBooked = (booked) => {
   for (let { date, duration } of booked) {
     let theDate = new Date(date)
     let hour = theDate.getHours();
-    let min = theDate.getMinutes();
-    let time = min == 30 ? hour + 0.5 : hour;
-    for (let i = time; i < time + duration; i += 0.5) {
-      if (i % 1 == 0) {
-        theDate.setHours(i);
-        theDate.setMinutes(0);
-      } else {
-        theDate.setHours(i - 0.5);
-        theDate.setMinutes(30);
-      }
+    for (let i = hour; i < hour + duration; i++) {
+      theDate.setHours(i);
+      theDate.setMinutes(0);
       dates.push(new Date(theDate));
     }
   }
@@ -64,10 +47,13 @@ const getBooked = (booked) => {
 
 }
 
-export const getAvailableDates = (booked, open, start, end) => {
+const getAvailableDates = (booked, open, start, end) => {
   let bookedDates = stringifyDates(getBooked(booked));
   let allDates = getDatesBetweenDates(start, end, open);
   return allDates.filter((i) => (!bookedDates.includes(i.toString())));
 }
 
-export const stringifyDates = (dates) => (dates.map((i) => i.toString()));
+const stringifyDates = (dates) => (dates.map((i) => i.toString()));
+
+exports.getAvailableDates = getAvailableDates;
+exports.stringifyDates = stringifyDates;
