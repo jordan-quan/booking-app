@@ -14,7 +14,7 @@ router.get("/getDates", (req, res, next) => {
   let cap = new Date(new Date().setDate(new Date().getDate() + 30));
   let dates = getAvailableDates(booked, businessHours, today, cap);
 
-  let matrix = buildMatrix(today, cap);
+  let { matrix, years } = buildMatrix(today, cap);
 
   for (let date of dates) {
     let month = monthNames[date.getMonth()];
@@ -23,7 +23,7 @@ router.get("/getDates", (req, res, next) => {
 
     matrix[month][day][num].push(date);
   }
-  res.json(matrix);
+  res.json({ matrix, years });
 });
 
 
@@ -39,6 +39,7 @@ const buildMatrix = (startDate, endDate) => {
     : [{ month: startDate.getMonth(), year: startDate.getFullYear() }, { month: endDate.getMonth(), year: endDate.getFullYear() }]
 
   let matrix = {};
+  let years = {};
 
   for (let { month, year } of months) {
     let numOfDays = days(month, year);
@@ -55,9 +56,11 @@ const buildMatrix = (startDate, endDate) => {
       matrix[monthNames[month]][weekdays[firstWeekday]][i] = [];
       firstWeekday = (firstWeekday + 1) % 7;
     }
+
+    years[monthNames[month]] = year;
   }
 
-  return matrix;
+  return { matrix, years };
 
 }
 
