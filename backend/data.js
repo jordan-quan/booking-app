@@ -1,12 +1,12 @@
 let booked = [
   {
     type: 'blocked',
-    date: new Date(2020, 11, 20, 10, 00, 0),
+    date: new Date(2020, 11, 20, 10, 00, 0).toString(),
     duration: 2
   },
   {
     type: 'blocked',
-    date: new Date(2020, 11, 21, 13, 00, 0),
+    date: new Date(2020, 11, 21, 13, 00, 0).toString(),
     duration: 3
   }
 ];

@@ -1,11 +1,11 @@
 import React from "react";
-import Home from "components/Home/Home.jsx";
+import Calendar from "components/Calendar/Calendar.jsx";
 
 
 
 const App = () =>
   (
-    <Home />
+    <Calendar onSelectDate={(date) => console.log("From selectDate function: " + date)} />
   );
 
 export default App;
