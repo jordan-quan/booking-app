@@ -9,7 +9,7 @@ import { BsFillClockFill as ClockIcon } from "react-icons/bs";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 import * as styles from './styles';
-import { API } from 'config';
+import { API } from 'config.js';
 
 const Calendar = ({ onSelectDate }) => {
   const [dates, setDates] = useState({});

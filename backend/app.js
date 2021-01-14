@@ -5,12 +5,19 @@ const dates = require('./routers/dates');
 var express = require('express');
 var axios = require('axios');
 var app = express();
+const port = process.env.PORT || 8080;
+const mongoose = require('mongoose');
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var { booked } = require('./data');
 
-// var cors = require('cors');
-// app.use(cors());
+require('dotenv').config();
+
+const dbURI = process.env.ATLAS_URI;
+mongoose.connect(dbURI, { useNewUrlParser: true, useCreateIndex: true });
+
+var cors = require('cors');
+app.use(cors());
 
 app.use(dates);
 
@@ -20,15 +27,6 @@ io.on("connection", socket => {
   let interval = setInterval(() => {
     getApiAndEmit(socket);
   }, 1000);
-
-  socket.on("book-date", (data) => {
-    booked.push({
-      type: 'blocked',
-      date: new Date(data),
-      duration: 1
-    });
-    getApiAndEmit(socket);
-  })
 
   socket.on("disconnect", () => {
     clearInterval(interval);
@@ -41,7 +39,7 @@ io.on("connection", socket => {
 const getApiAndEmit = async socket => {
   try {
     const res = await axios.get(
-      "http://192.168.86.246:8080/getDates"
+      "http://localhost:8080/getDates"
     );
     socket.emit("view-dates", res.data);
 
@@ -50,6 +48,6 @@ const getApiAndEmit = async socket => {
   }
 };
 
-server.listen(8080, () => {
+server.listen(port, () => {
   console.log("Server running on port 8080");
 });

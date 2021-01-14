@@ -1,4 +1,10 @@
 
+const monthNames = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 const getDatesBetweenDates = (startDate, endDate, open) => {
   let dates = getAvailableToday(startDate, open);
   //to avoid modifying the original date
@@ -55,5 +61,43 @@ const getAvailableDates = (booked, open, start, end) => {
 
 const stringifyDates = (dates) => (dates.map((i) => i.toString()));
 
+const days = (month, year) => {
+  return new Date(year, (month + 1) % 12, 0).getDate();
+};
+
+const buildMatrix = (startDate, endDate) => {
+
+  let months = startDate.getMonth() == endDate.getMonth()
+    ? [startDate.getMonth()]
+    : [{ month: startDate.getMonth(), year: startDate.getFullYear() }, { month: endDate.getMonth(), year: endDate.getFullYear() }]
+
+  let matrix = {};
+  let years = {};
+
+  for (let { month, year } of months) {
+    let numOfDays = days(month, year);
+    matrix[monthNames[month]] = { Sunday: {}, Monday: {}, Tuesday: {}, Wednesday: {}, Thursday: {}, Friday: {}, Saturday: {} };
+
+    let firstWeekday = new Date(year, month, 1).getDay();
+
+
+    for (let j = (firstWeekday - 1) % 7; j >= 0; j--) {
+      matrix[monthNames[month]][weekdays[j]][0] = [];
+    }
+
+    for (let i = 1; i <= numOfDays; i++) {
+      matrix[monthNames[month]][weekdays[firstWeekday]][i] = [];
+      firstWeekday = (firstWeekday + 1) % 7;
+    }
+
+    years[monthNames[month]] = year;
+  }
+
+  return { matrix, years };
+
+}
+
+exports.buildMatrix = buildMatrix;
 exports.getAvailableDates = getAvailableDates;
-exports.stringifyDates = stringifyDates;
+exports.monthNames = monthNames;
+exports.weekdays = weekdays;
